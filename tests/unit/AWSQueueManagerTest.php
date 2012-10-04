@@ -42,13 +42,17 @@ class AWSQueueManagerTest extends CTestCase
         //Make a request
         $this->sqs()->queues;
         $lastRequestID = $this->sqs()->lastRequestID;
-
         //Get queues from local
         $this->sqs()->queues;
         $this->assertEquals($lastRequestID, $this->sqs()->lastRequestID);
-
         //Refresh lists
         $this->sqs()->getQueues(true);
         $this->assertNotEquals($lastRequestID, $this->sqs()->lastRequestID);
+    }
+
+    public function testCreateQueue()
+    {
+        $this->markTestSkipped('t');
+        $this->sqs()->create(sha1(rand()));
     }
 }

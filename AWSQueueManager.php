@@ -1,4 +1,5 @@
 <?php
+Yii::import('ext.yii-aws-sqs.*');
 /**
  * AWSQueueManager
  */
@@ -50,6 +51,14 @@ class AWSQueueManager extends CApplicationComponent
         parent::init();
     }
 
+    /** 
+     * @return array error details
+     */
+    public function getErrors()
+    {
+        return $this->_errors;
+    }
+
     /**
      * @var string last request id
      */
@@ -64,8 +73,18 @@ class AWSQueueManager extends CApplicationComponent
     public function getQueues($refresh=false)
     {
         if($this->_queues===null || $refresh) {
+            $this->_queues = new AWSQueueList();
+            $this->_queues->caseSensitive = true;
             $response = $this->parseResponse($this->_sqs->list_queues());
-            $this->_queues=array();
+
+            if(!empty($response->body->ListQueuesResult)) {
+                var_dump(1);
+                foreach($response->body->ListQueuesResult->QueueUrl as $qUrl)
+                {
+                    $q = new AWSQueue($qUrl);
+                    $this->_queues->add($q->name,$q);
+                }
+            }
         }
         return $this->_queues;
     }
@@ -79,18 +98,23 @@ class AWSQueueManager extends CApplicationComponent
     private function parseResponse($response)
     {
         $this->_errors=array();
-        if($response->isOK) {
-            $this->_lastRequestId = (string)$response->body->ResponseMetadata->RequestId;
-            return $response->body;
+        $this->_lastRequestId = (string)$response->body->ResponseMetadata->RequestId;
+
+        if($response->isOK()) {
+            return $response;
         } else {
-            $this->_lastRequestId = (string)$response->body->RequestId;
             $this->_errors = array(
-                'id'      => $response->body->RequestId,
-                'code'    => $response->body->Error->Code,
-                'message' => $response->body->Error->Message
+                'id'      => (string)$response->body->RequestId,
+                'code'    => (string)$response->body->Error->Code,
+                'message' => (string)$response->body->Error->Message,
             );
             Yii::log(implode(' - ', array_values($this->_errors)),'error','ext.sqs');
         }
-        return null;
+        return false;
+    }
+    
+    public function create($name)
+    {
+        return ($this->parseResponse($this->_sqs->create_queue($name))!==false);
     }
 }

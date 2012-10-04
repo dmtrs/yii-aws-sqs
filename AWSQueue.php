@@ -2,25 +2,47 @@
 /** 
  * AWSQueue
  */
-class AWSQueue extends CFormModel
+class AWSQueue extends CModel
 {
     /** 
      * @var string name of the queue accepts letter, numbers, - and _
      */
-    public $name;
+    private $_name;
 
     /** 
-     * The length of time (in seconds) that a message that has been received
-     * from a queue will be invisible to other receiving components when they
-     * ask to receive messages. During the visibility timeout, the component
-     * that received the message usually processes the message and then deletes
-     * it from the queue.
-     * @var integer Default 30 seconds
+     * @var string url of the queue
      */
-    public $visibilityTimeout = 30;
+    private $_url; 
 
-    /**
-     * TBD
-     */
-    public $policy; 
+    public function __construct($url=null)
+    {
+        if($url!==null)
+            $this->url = $url;
+    }
+
+    public function getName()
+    {
+        return $this->_name;
+    }
+    public function getUrl()
+    {
+        return $this->_url;
+    }
+    public function setUrl($url)
+    {
+        $p = parse_url($url);
+        if(isset($p['path'])) {
+            $path = explode('/',$p['path']);
+            $this->_name = array_pop($path);
+        }
+        $this->_url=$url;
+    }
+
+    public function attributeNames()
+    {
+        return array(
+            'name', 
+            'url',
+        );
+    }
 }
