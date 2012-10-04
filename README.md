@@ -1,7 +1,7 @@
 yii-aws-sqs
 ===========
 
-AWS Simple Queue Service component for the yii framework
+AWS Simple Queue Service component for the yii framework version 0.1
 
 ##Requirements
 
