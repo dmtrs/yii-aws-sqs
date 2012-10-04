@@ -89,6 +89,37 @@ class AWSQueueManager extends CApplicationComponent
         return $this->_queues;
     }
 
+    /** 
+     * @param string $url     url of the queue to send message
+     * @param string $message message to send
+     * @param array  $options extra options for the message
+     * @return boolean message was succesfull 
+     */
+    public function send($url, $message, $options=array())
+    {
+        return ($this->parseResponse($this->_sqs->send_message($url, $message, $options))!==false);
+    }
+
+    /**
+     * @param string $url     url of the queue to send message
+     * @param array  $options extra options for the message
+     * @return AWSMessage the message received
+     */
+    public function receive($url, $options=array())
+    {
+        $msg = null;
+        if(($r=$this->parseResponse($this->_sqs->receive_message($url, $options)))!==false) {
+            if(!empty($r->body->ReceiveMessageResult)) { 
+                $msg = new AWSMessage();
+                $msg->body          = (string)$r->body->ReceiveMessageResult->Message->Body;
+                $msg->md5           = (string)$r->body->ReceiveMessageResult->Message->MD5OfBody;
+                $msg->id            = (string)$r->body->ReceiveMessageResult->Message->MessageId;
+                $msg->receiptHandle = (string)$r->body->ReceiveMessageResult->Message->ReceiptHandle;
+            }
+        }
+        return $msg;
+    }
+
     /**
      * Parse response to get the last request id, check for errrors
      *
