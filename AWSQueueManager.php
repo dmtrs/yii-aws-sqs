@@ -97,7 +97,7 @@ class AWSQueueManager extends CApplicationComponent
      */
     public function send($url, $message, $options=array())
     {
-        return ($this->parseResponse($this->_sqs->send_message($url, $message, $options))!==false);
+        return (($r=$this->parseResponse($this->_sqs->send_message($url, $message, $options)))!==false);
     }
 
     /**
@@ -118,6 +118,19 @@ class AWSQueueManager extends CApplicationComponent
             }
         }
         return $msg;
+    }
+
+    /**
+     * Delete a message from a queue
+     *
+     * @param string $url           url of the queue
+     * @param mixed  $receiptHandle AWSMessage contain the receiptHandle or the receipthandle for the message
+     * @return boolean if message was delete succesfull
+     */
+    public function delete($url, $handle, $options=array())
+    {
+        $receiptHandle = ($handle instanceof AWSMessage) ? $handle->receiptHandle : $handle;
+        return (($r=$this->parseResponse($this->_sqs->delete_message($url, $receiptHandle, $options)))!==false);
     }
 
     /**

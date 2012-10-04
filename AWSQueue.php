@@ -86,7 +86,7 @@ class AWSQueue extends CModel
     public function send($message, $options=array())
     {
         if($this->_url!==null)
-            return $this->sqs()->send($this->url, (string)$message, $options);
+            return (boolean)$this->sqs()->send($this->url, (string)$message, $options);
 
         return false;
     }
@@ -97,5 +97,13 @@ class AWSQueue extends CModel
             return $this->sqs()->receive($this->url, $options);
 
         return null;
+    }
+
+    public function delete($handle, $options=array())
+    {
+        if($this->_url!==null)
+            return (boolean)$this->sqs()->delete($this->_url, $handle, $options);
+
+        return false;
     }
 }
