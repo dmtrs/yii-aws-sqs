@@ -69,7 +69,9 @@ define('SQS_SECRET_KEY', 'KJGVJRHJ24v...');
 ```
 3. Run the test. Example: 
 
+```
     phpunit ../extensions/yii-aws-sqs/test/unit/
+``` 
 
     
 
