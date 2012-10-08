@@ -78,6 +78,26 @@ define('SQS_SECRET_KEY', 'KJGVJRHJ24v...');
     phpunit ../extensions/yii-aws-sqs/test/unit/
 ``` 
 
+##Examples
+
+###Queues
+####List
+In order to get a list of queues access the property `AWSQueueManager::$queues` like
+
+``` php
+<?php
+    $myAwsQueues = Yii::app()->queues;
+?>
+```
+
+The above will trigger a request to SQS, the first time it is called, to get the list of queues and will return a `AWSQueueList` object. In order to refresh use the `$refresh` param
+
+``` php
+<?php
+    $myAwsQueues = Yii::app()->getQueues(true);
+```
+####Create queue
+
     
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/226c74050760aa30915ae903c7c32c4c "githalytics.com")](http://githalytics.com/dmtrs/yii-aws-sqs)

@@ -51,6 +51,18 @@ class AWSQueueManager extends CApplicationComponent
         parent::init();
     }
 
+    /**
+     * Returns a queue, property value, an event handler list or a behavior based on its name.
+     * Do not call this method.
+     */
+    public function __get($name)
+    {
+        if($this->getQueues()->itemAt($name)!==null)
+            return $this->queues->{$name};
+        else
+            return parent::__get($name);
+    }
+    
     /** 
      * @return array error details
      */

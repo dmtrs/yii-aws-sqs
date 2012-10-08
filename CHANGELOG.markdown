@@ -1,6 +1,11 @@
 yii-aws-sqs changelog
 =====================
 
+##Next version
+
+- Caching of queues list
+- Bath send, receive, delete 
+
 ##Version 0.1
 
 - Create a queue
