@@ -9,7 +9,12 @@ AWS Simple Queue Service component for the yii framework version 0.1
 2. [Amazon sdk for php](https://github.com/amazonwebservices/aws-sdk-for-php)
 
 ##Installation 
-1. Copy file under extensions ( or folder of your choice ) and import it in your config file
+1. Get a copy extensions on your codebase, preferably added a git submodule with the following way:
+
+        $ git submodule add https://github.com/dmtrs/yii-aws-sqs.git extensions/yii-aws-sqs
+
+
+2. Copy file under extensions ( or folder of your choice ) and import it in your config file
 
 ``` php
 <?php 
@@ -24,7 +29,7 @@ return array(
 );
 ```
 
-2. Also, config component in your config file:
+3. Also, config component in your config file:
 
 ``` php
 <?php 
@@ -42,7 +47,7 @@ return array(
 );
 ```
 
-3. (Need to be fixed) Download the amazon sdk for php (check requirements) and include it in your `index.php`. Something ugly like:
+4. (Need to be fixed) Download the amazon sdk for php (check requirements) and include it in your `index.php`. Something ugly like:
 
 ``` php
 <?php
