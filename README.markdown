@@ -9,12 +9,12 @@ AWS Simple Queue Service component for the yii framework version 0.1
 2. [Amazon sdk for php](https://github.com/amazonwebservices/aws-sdk-for-php)
 
 ##Installation 
-1. Get a copy extensions on your codebase, preferably added a git submodule with the following way:
+Get a copy extensions on your codebase, preferably added a git submodule with the following way:
 
         $ git submodule add https://github.com/dmtrs/yii-aws-sqs.git extensions/yii-aws-sqs
 
 
-2. Copy file under extensions ( or folder of your choice ) and import it in your config file
+Copy file under extensions ( or folder of your choice ) and import it in your config file
 
 ``` php
 <?php 
@@ -29,7 +29,7 @@ return array(
 );
 ```
 
-3. Also, config component in your config file:
+Also, config component in your config file:
 
 ``` php
 <?php 
@@ -47,7 +47,7 @@ return array(
 );
 ```
 
-4. (Need to be fixed) Download the amazon sdk for php (check requirements) and include it in your `index.php`. Something ugly like:
+(Need to be fixed) Download the amazon sdk for php (check requirements) and include it in your `index.php`. Something ugly like:
 
 ``` php
 <?php
@@ -81,23 +81,29 @@ define('SQS_SECRET_KEY', 'KJGVJRHJ24v...');
 ##Examples
 
 ###Queues
-####List
 In order to get a list of queues access the property `AWSQueueManager::$queues` like
 
 ``` php
 <?php
+    //This will trigger a request to SQS the first time it is called & will return AWSQueueList object.
     $myAwsQueues = Yii::app()->queues;
-?>
+    //In order to refresh use the `$refresh` param;
+    $myAwsQueues = Yii::app()->getQueues(true);
 ```
 
-The above will trigger a request to SQS, the first time it is called, to get the list of queues and will return a `AWSQueueList` object. In order to refresh use the `$refresh` param
+A queue can be accessed either from the queues object either from the sqs object. Like:
+
+``` php 
+<?php 
+    Yii::app()->sqs->queues->myTestQueue; // is equal to 
+    Yii::app()->sqs->myTestQueue;
+```
+
+Creating a queue is easy
 
 ``` php
 <?php
-    $myAwsQueues = Yii::app()->getQueues(true);
-```
-####Create queue
-
-    
+    Yii::app()->sqs->create('myTestingQueue');
+``` 
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/226c74050760aa30915ae903c7c32c4c "githalytics.com")](http://githalytics.com/dmtrs/yii-aws-sqs)

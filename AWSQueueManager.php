@@ -169,8 +169,16 @@ class AWSQueueManager extends CApplicationComponent
         return false;
     }
     
+    /** 
+     * @return mixed AWSQueue object if creation was succesfull, null else
+     */
     public function create($name)
     {
-        return ($this->parseResponse($this->_sqs->create_queue($name))!==false);
+        if(($r=$this->parseResponse($this->_sqs->create_queue($name)))!==false) {
+            $q=new AWSQueue((string)$r->body->CreateQueueResult->QueueUrl);
+            $this->queues->add($q->name, $q);
+            return $q;
+        }
+        return null;
     }
 }
