@@ -111,24 +111,62 @@ class AWSQueueManager extends CApplicationComponent
         return (($r=$this->parseResponse($this->_sqs->send_message($url, $message, $options)))!==false);
     }
 
+    /** 
+     * Send a batch of messages. AWS SQS limits the message batches
+     * with a limit of 10 per request. If $messageArray has more than 10 messages
+     * then 2 requests will be triggered.
+     *
+     * @param string $url          url of the queue to send message
+     * @param string $messageArray message to send
+     * @param array  $options      extra options for the message
+     * @return boolean message was succesfull 
+     */
+    public function sendBatch($url, $messageArray, $options=array())
+    {
+        $r=true;
+        foreach(array_chunk($messageArray,10) as $batch)
+        {
+            $messages=array();
+            foreach($batch as $i=>$message)
+            {
+                $messages[]=array(
+                    'Id'          => $i,
+                    'MessageBody' => (string)$message,
+                );
+            }
+            $r=$r&&($this->parseResponse($this->_sqs->send_message_Batch($url, $messages, $options))!==false);
+        }
+        return $r;
+    }
+
     /**
+     * Receive messages from the queue
+     * If there is no message returned then this function returns null.
+     * In case of one message then a AWSMessage is returned for convienience, if more
+     * then an array of AWSMessage objects is returned.
+     *
      * @param string $url     url of the queue to send message
      * @param array  $options extra options for the message
-     * @return AWSMessage the message received
+     * @return mixed
      */
     public function receive($url, $options=array())
     {
-        $msg = null;
+        $msgs=array();
         if(($r=$this->parseResponse($this->_sqs->receive_message($url, $options)))!==false) {
-            if(!empty($r->body->ReceiveMessageResult)) { 
-                $msg = new AWSMessage();
-                $msg->body          = (string)$r->body->ReceiveMessageResult->Message->Body;
-                $msg->md5           = (string)$r->body->ReceiveMessageResult->Message->MD5OfBody;
-                $msg->id            = (string)$r->body->ReceiveMessageResult->Message->MessageId;
-                $msg->receiptHandle = (string)$r->body->ReceiveMessageResult->Message->ReceiptHandle;
+            if(!empty($r->body->ReceiveMessageResult)) {
+                foreach($r->body->ReceiveMessageResult->Message as $message)
+                {
+                    $m = new AWSMessage();
+                    $m->body          = (string)$message->Body;
+                    $m->md5           = (string)$message->MD5OfBody;
+                    $m->id            = (string)$message->MessageId;
+                    $m->receiptHandle = (string)$message->ReceiptHandle;
+                    $msgs[]=$m;
+                }
+                return (count($msgs)===1) ? array_pop($msgs) : $msgs;
             }
         }
-        return $msg;
+        return (isset($options['MaxNumberOfMessages'])) ? array() : null;
     }
 
     /**
