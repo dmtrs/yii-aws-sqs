@@ -90,7 +90,6 @@ class AWSQueueManager extends CApplicationComponent
             $response = $this->parseResponse($this->_sqs->list_queues());
 
             if(!empty($response->body->ListQueuesResult)) {
-                var_dump(1);
                 foreach($response->body->ListQueuesResult->QueueUrl as $qUrl)
                 {
                     $q = new AWSQueue($qUrl);
