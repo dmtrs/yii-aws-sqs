@@ -37,6 +37,12 @@ class AWSQueueManager extends CApplicationComponent
     private $_errors=array();
 
     /**
+     * The prefix to add to the table
+     * @var string prefix
+     */
+    public $tablePrefix;
+
+    /**
      * Initializes the application component.
      */
     public function init()
@@ -62,8 +68,8 @@ class AWSQueueManager extends CApplicationComponent
         else
             return parent::__get($name);
     }
-    
-    /** 
+
+    /**
      * @return array error details
      */
     public function getErrors()
@@ -100,11 +106,11 @@ class AWSQueueManager extends CApplicationComponent
         return $this->_queues;
     }
 
-    /** 
+    /**
      * @param string $url     url of the queue to send message
      * @param string $message message to send
      * @param array  $options extra options for the message
-     * @return boolean message was succesfull 
+     * @return boolean message was succesfull
      */
     public function send($url, $message, $options=array())
     {
@@ -120,7 +126,7 @@ class AWSQueueManager extends CApplicationComponent
     {
         $msg = null;
         if(($r=$this->parseResponse($this->_sqs->receive_message($url, $options)))!==false) {
-            if(!empty($r->body->ReceiveMessageResult)) { 
+            if(!empty($r->body->ReceiveMessageResult)) {
                 $msg = new AWSMessage();
                 $msg->body          = (string)$r->body->ReceiveMessageResult->Message->Body;
                 $msg->md5           = (string)$r->body->ReceiveMessageResult->Message->MD5OfBody;
@@ -167,8 +173,8 @@ class AWSQueueManager extends CApplicationComponent
         }
         return false;
     }
-    
-    /** 
+
+    /**
      * @return mixed AWSQueue object if creation was succesfull, null else
      */
     public function create($name)
