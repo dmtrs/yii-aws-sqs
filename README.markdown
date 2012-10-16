@@ -103,7 +103,9 @@ Creating a queue is easy
 
 ``` php
 <?php
-    Yii::app()->sqs->create('myTestingQueue');
+    if(($newQueue=Yii::app()->sqs->create('myTestingQueue'))!==null) {
+        $newQueue->send('message');//Sending a message, see later for instructions
+    }
 ``` 
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/226c74050760aa30915ae903c7c32c4c "githalytics.com")](http://githalytics.com/dmtrs/yii-aws-sqs)

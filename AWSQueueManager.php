@@ -118,23 +118,61 @@ class AWSQueueManager extends CApplicationComponent
     }
 
     /**
+     * Send a batch of messages. AWS SQS limits the message batches
+     * with a limit of 10 per request. If $messageArray has more than 10 messages
+     * then 2 requests will be triggered.
+     *
+     * @param string $url          url of the queue to send message
+     * @param string $messageArray message to send
+     * @param array  $options      extra options for the message
+     * @return boolean message was succesfull
+     */
+    public function sendBatch($url, $messageArray, $options=array())
+    {
+        $r=true;
+        foreach(array_chunk($messageArray,10) as $batch)
+        {
+            $messages=array();
+            foreach($batch as $i=>$message)
+            {
+                $messages[]=array(
+                    'Id'          => $i,
+                    'MessageBody' => (string)$message,
+                );
+            }
+            $r=$r&&($this->parseResponse($this->_sqs->send_message_Batch($url, $messages, $options))!==false);
+        }
+        return $r;
+    }
+
+    /**
+     * Receive messages from the queue
+     * If there is no message returned then this function returns null.
+     * In case of one message then a AWSMessage is returned for convienience, if more
+     * then an array of AWSMessage objects is returned.
+     *
      * @param string $url     url of the queue to send message
      * @param array  $options extra options for the message
-     * @return AWSMessage the message received
+     * @return mixed
      */
     public function receive($url, $options=array())
     {
-        $msg = null;
+        $msgs=array();
         if(($r=$this->parseResponse($this->_sqs->receive_message($url, $options)))!==false) {
             if(!empty($r->body->ReceiveMessageResult)) {
-                $msg = new AWSMessage();
-                $msg->body          = (string)$r->body->ReceiveMessageResult->Message->Body;
-                $msg->md5           = (string)$r->body->ReceiveMessageResult->Message->MD5OfBody;
-                $msg->id            = (string)$r->body->ReceiveMessageResult->Message->MessageId;
-                $msg->receiptHandle = (string)$r->body->ReceiveMessageResult->Message->ReceiptHandle;
+                foreach($r->body->ReceiveMessageResult->Message as $message)
+                {
+                    $m = new AWSMessage();
+                    $m->body          = (string)$message->Body;
+                    $m->md5           = (string)$message->MD5OfBody;
+                    $m->id            = (string)$message->MessageId;
+                    $m->receiptHandle = (string)$message->ReceiptHandle;
+                    $msgs[]=$m;
+                }
+                return (count($msgs)===1) ? array_pop($msgs) : $msgs;
             }
         }
-        return $msg;
+        return (isset($options['MaxNumberOfMessages'])) ? array() : null;
     }
 
     /**
@@ -148,6 +186,24 @@ class AWSQueueManager extends CApplicationComponent
     {
         $receiptHandle = ($handle instanceof AWSMessage) ? $handle->receiptHandle : $handle;
         return (($r=$this->parseResponse($this->_sqs->delete_message($url, $receiptHandle, $options)))!==false);
+    }
+    /**
+     * Deletes a batch of messages
+     * @param type $url The url of the queue
+     * @param array $handles An array of messages or handles to delete
+     * @param type $options
+     * @return boolean if the delete was sucessful or not
+     */
+    public function deleteBatch($url, $handles, $options=array())
+    {
+        $deleteRequest = array();
+        foreach ($handles as $key => $handle) {
+            $receiptHandle = ($handle instanceof AWSMessage) ? $handle->receiptHandle : $handle;
+            $req = array('Id'=>$key,'ReceiptHandle'=>$receiptHandle);
+            array_push($deleteRequest, $req);
+        }
+
+        return (($r=$this->parseResponse($this->_sqs->delete_message_batch($url, $deleteRequest, $options)))!==false);
     }
 
     /**

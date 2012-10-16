@@ -91,6 +91,17 @@ class AWSQueue extends CModel
         return false;
     }
 
+    public function sendBatch($messageArray, $options=array())
+    {
+        return $this->sqs()->sendBatch($this->url, $messageArray, $options);
+    }
+
+    public function receiveBatch($items=10, $options=array())
+    {
+        $options['MaxNumberOfMessages']=$items;
+        return $this->sqs()->receive($this->url, $options);
+    }
+
     public function receive($options=array())
     {
         if($this->_url!==null)
@@ -103,6 +114,13 @@ class AWSQueue extends CModel
     {
         if($this->_url!==null)
             return (boolean)$this->sqs()->delete($this->_url, $handle, $options);
+
+        return false;
+    }
+
+    public function deleteBatch($handles, $options = array()){
+        if($this->_url!==null)
+            return (boolean)$this->sqs()->deleteBatch($this->_url, $handles, $options);
 
         return false;
     }
