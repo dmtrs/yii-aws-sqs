@@ -117,7 +117,7 @@ class AWSQueueManager extends CApplicationComponent
         return (($r=$this->parseResponse($this->_sqs->send_message($url, $message, $options)))!==false);
     }
 
-    /** 
+    /**
      * Send a batch of messages. AWS SQS limits the message batches
      * with a limit of 10 per request. If $messageArray has more than 10 messages
      * then 2 requests will be triggered.
@@ -125,7 +125,7 @@ class AWSQueueManager extends CApplicationComponent
      * @param string $url          url of the queue to send message
      * @param string $messageArray message to send
      * @param array  $options      extra options for the message
-     * @return boolean message was succesfull 
+     * @return boolean message was succesfull
      */
     public function sendBatch($url, $messageArray, $options=array())
     {
@@ -186,6 +186,24 @@ class AWSQueueManager extends CApplicationComponent
     {
         $receiptHandle = ($handle instanceof AWSMessage) ? $handle->receiptHandle : $handle;
         return (($r=$this->parseResponse($this->_sqs->delete_message($url, $receiptHandle, $options)))!==false);
+    }
+    /**
+     * Deletes a batch of messages
+     * @param type $url The url of the queue
+     * @param array $handles An array of messages or handles to delete
+     * @param type $options
+     * @return boolean if the delete was sucessful or not
+     */
+    public function deleteBatch($url, $handles, $options=array())
+    {
+        $deleteRequest = array();
+        foreach ($handles as $key => $handle) {
+            $receiptHandle = ($handle instanceof AWSMessage) ? $handle->receiptHandle : $handle;
+            $req = array('Id'=>$key,'ReceiptHandle'=>$receiptHandle);
+            array_push($deleteRequest, $req);
+        }
+
+        return (($r=$this->parseResponse($this->_sqs->delete_message_batch($url, $deleteRequest, $options)))!==false);
     }
 
     /**

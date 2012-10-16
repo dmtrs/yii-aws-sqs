@@ -117,4 +117,11 @@ class AWSQueue extends CModel
 
         return false;
     }
+
+    public function deleteBatch($handles, $options = array()){
+        if($this->_url!==null)
+            return (boolean)$this->sqs()->deleteBatch($this->_url, $handles, $options);
+
+        return false;
+    }
 }
