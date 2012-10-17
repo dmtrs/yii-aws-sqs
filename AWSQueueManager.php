@@ -169,10 +169,13 @@ class AWSQueueManager extends CApplicationComponent
                     $m->receiptHandle = (string)$message->ReceiptHandle;
                     $msgs[]=$m;
                 }
-                return (count($msgs)===1) ? array_pop($msgs) : $msgs;
             }
         }
-        return (isset($options['MaxNumberOfMessages'])) ? array() : null;
+        if(isset($options['MaxNumberOfMessages'])){
+            return $msgs;
+        } else {
+            return empty($msgs) ? null : array_pop($msgs);
+        }
     }
 
     /**
