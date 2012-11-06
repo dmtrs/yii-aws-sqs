@@ -26,7 +26,12 @@ class AWSMessage extends CModel
         return array('body','id','receiptHandle','md5');
     }
 
-    public function toString()
+    /**
+     * Magic method to cast object to string
+     * 
+     * @return string the message's body
+     */
+    public function __toString()
     {
         return $this->body;
     }
