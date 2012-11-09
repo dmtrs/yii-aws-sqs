@@ -167,6 +167,14 @@ class AWSQueueManager extends CApplicationComponent
                     $m->md5           = (string)$message->MD5OfBody;
                     $m->id            = (string)$message->MessageId;
                     $m->receiptHandle = (string)$message->ReceiptHandle;
+                    foreach ($message->Attribute as $value) {
+                        $name = lcfirst((string)$value->Name);
+                        $value = (string)$value->Value;
+                        if(in_array($name, $m->attributeNames())){
+                            $m->$name = $value;
+                        }
+
+                    }
                     $msgs[]=$m;
                 }
             }
