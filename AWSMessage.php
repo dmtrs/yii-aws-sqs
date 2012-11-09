@@ -1,6 +1,10 @@
 <?php
 class AWSMessage extends CModel
 {
+
+    const AWS_VISIBILITY_TIMEOUT = 'VisibilityTimeout';
+    const AWS_SENT_TIMESTAMP = 'SentTimestamp';
+    const AWS_SENDER_ID = 'SenderId';
     /**
      * @var mixed body of the message
      */
